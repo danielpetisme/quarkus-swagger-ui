@@ -1,5 +1,10 @@
 package io.quarkus.swaggerui.deployment;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.jboss.logging.Logger;
+
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
@@ -7,10 +12,6 @@ import io.quarkus.runtime.annotations.ConfigItem;
 import io.quarkus.runtime.annotations.ConfigRoot;
 import io.quarkus.swaggerui.runtime.SwaggerUiServlet;
 import io.quarkus.undertow.deployment.ServletBuildItem;
-import org.jboss.logging.Logger;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class SwaggerUiProcessor {
 
@@ -41,7 +42,7 @@ public class SwaggerUiProcessor {
         return Arrays.asList(new AdditionalBeanBuildItem(SwaggerUiServlet.class));
     }
 
-    @ConfigRoot(name = "swaggerui")
+    @ConfigRoot
     static final class SwaggerUiConfig {
         /**
          * The path of the swagger-ui servlet.

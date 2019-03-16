@@ -42,7 +42,7 @@ public class SwaggerUiProcessor {
         return Arrays.asList(new AdditionalBeanBuildItem(SwaggerUiServlet.class));
     }
 
-    @ConfigRoot(name = "swaggerui")
+    @ConfigRoot
     static final class SwaggerUiConfig {
         /**
          * The path of the swagger-ui servlet.

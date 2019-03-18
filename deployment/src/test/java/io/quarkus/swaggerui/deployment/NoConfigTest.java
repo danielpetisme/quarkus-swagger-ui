@@ -21,5 +21,6 @@ public class NoConfigTest {
     public void shouldUseDefaultConfig() {
         RestAssured.when().get("/swagger-ui").then().statusCode(200);
         RestAssured.when().get("/swagger-ui/index.html").then().statusCode(200);
+
     }
 }

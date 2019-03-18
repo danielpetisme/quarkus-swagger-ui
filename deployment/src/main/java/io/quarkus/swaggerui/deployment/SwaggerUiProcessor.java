@@ -1,17 +1,20 @@
 package io.quarkus.swaggerui.deployment;
 
-import java.util.Arrays;
-import java.util.List;
+import javax.inject.Inject;
 
 import org.jboss.logging.Logger;
 
-import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
+import io.quarkus.arc.deployment.BeanContainerBuildItem;
+import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
+import io.quarkus.deployment.annotations.ExecutionTime;
+import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
+import io.quarkus.deployment.builditem.LaunchModeBuildItem;
 import io.quarkus.runtime.annotations.ConfigItem;
 import io.quarkus.runtime.annotations.ConfigRoot;
-import io.quarkus.swaggerui.runtime.SwaggerUiServlet;
-import io.quarkus.undertow.deployment.ServletBuildItem;
+import io.quarkus.swaggerui.runtime.SwaggerUiTemplate;
+import io.quarkus.undertow.deployment.ServletExtensionBuildItem;
 
 public class SwaggerUiProcessor {
 
@@ -20,26 +23,38 @@ public class SwaggerUiProcessor {
     /**
      * The configuration for swagger-ui.
      */
-    SwaggerUiConfig swaggerUiConfig;
+    private SwaggerUiConfig swaggerUiConfig;
 
+    @Inject
+    private LaunchModeBuildItem launch;
+
+    /**
+     * Register this extension as a swagger-ui feature
+     *
+     * @return
+     */
     @BuildStep
     FeatureBuildItem feature() {
         log.info("Feature: swagger-ui");
         return new FeatureBuildItem("swagger-ui");
     }
 
+    /**
+     * Register the Swagger UI servlet extention
+     *
+     * @param template - Swagger UI runtime template
+     * @param container - the BeanContainer for creating CDI beans
+     * @return servlet extension build item
+     */
     @BuildStep
-    ServletBuildItem servlet() {
-        log.info("Servlet: " + swaggerUiConfig.path);
-        return ServletBuildItem
-                .builder("swaggerui", SwaggerUiServlet.class.getName())
-                .addMapping(swaggerUiConfig.path)
-                .build();
-    }
-
-    @BuildStep
-    List<AdditionalBeanBuildItem> beans() {
-        return Arrays.asList(new AdditionalBeanBuildItem(SwaggerUiServlet.class));
+    @Record(ExecutionTime.STATIC_INIT)
+    public void registerSwaggerUiServletExtension(SwaggerUiTemplate template,
+            BuildProducer<ServletExtensionBuildItem> servletExtension, BeanContainerBuildItem container) {
+        if (launch.getLaunchMode().isDevOrTest()) {
+            log.info("Registering Swagger UI Servlet Extension");
+            servletExtension.produce(new ServletExtensionBuildItem(
+                    template.createSwaggerUiExtension(swaggerUiConfig.path, container.getValue())));
+        }
     }
 
     @ConfigRoot

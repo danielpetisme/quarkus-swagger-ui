@@ -17,7 +17,7 @@ public class CustomConfigTest {
 
     @Test
     public void shouldUseCustomConfig() {
-        RestAssured.when().get("/custom").then().statusCode(418);
+        RestAssured.when().get("/custom").then().statusCode(200);
+        RestAssured.when().get("/custom/index.html").then().statusCode(200);
     }
-
 }
